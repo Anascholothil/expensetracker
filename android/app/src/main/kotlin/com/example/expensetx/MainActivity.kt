@@ -1,4 +1,4 @@
-package com.example.expensetx
+package com.expensetx
 
 import io.flutter.embedding.android.FlutterActivity
 

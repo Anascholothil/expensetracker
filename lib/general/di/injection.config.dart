@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
 import '../../features/home/data/i_mainfacade.dart' as _i930;
-import '../../features/home/data/i_mainimpl.dart' as _i767;
+import '../../features/repo/i_mainimpl.dart' as _i767;
 import 'innjectable_mdolue.dart' as _i1021;
 
 // initializes the registration of main-scope dependencies inside of GetIt

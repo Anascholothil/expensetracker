@@ -9,12 +9,17 @@ class StateProvider with ChangeNotifier {
   StateProvider({required IExpenseFacade expenseFacade})
       : _expenseFacade = expenseFacade;
 
+
+//controllers
+    final itemController = TextEditingController();
+    final priceController = TextEditingController();
+
+
 //List private
   final List<ExpenseModel> _expenses = [];
 
   //last document
-    DocumentSnapshot? _lastDocument;
-
+  DocumentSnapshot? _lastDocument;
 
   //total price
   final double _netTotal = 0.0;
@@ -22,7 +27,6 @@ class StateProvider with ChangeNotifier {
   //Loader
   bool isLoading = false;
   String? _message;
-
 
 //has more data
   bool hasMore = true;
@@ -52,7 +56,7 @@ class StateProvider with ChangeNotifier {
       (failure) => _message = failure.errormsg,
       (successMessage) {
         _message = successMessage;
-        fetchExpenses(); // Refresh the expense list
+        fetchExpenses();
       },
     );
 
@@ -61,10 +65,10 @@ class StateProvider with ChangeNotifier {
   }
 
 // Fetch all expenses
-Future<void> fetchExpenses() async {
+  Future<void> fetchExpenses() async {
     if (isLoading) return;
 
-    isLoading = true; 
+    isLoading = true;
     notifyListeners();
 
     try {
@@ -90,8 +94,7 @@ Future<void> fetchExpenses() async {
       notifyListeners();
     }
   }
- 
- 
+
   // Future<void> deleteExpense(String expenseId, int index) async {
   //   // Call the facade to delete the expense from Firestore
   //   final result = await _expenseFacade.deleteExpense(expenseId);

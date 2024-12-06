@@ -114,73 +114,76 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showAddExpenseDialog(BuildContext context) {
     String selectedType = "Dr";
-    final itemController = TextEditingController();
-    final priceController = TextEditingController();
+
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Center(
-          child: Text(
-            "Add Expense",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 72, 168, 8),
-            ),
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: itemController,
-              decoration: const InputDecoration(
-                labelText: "Item Name",
+      builder: (context) => Consumer<StateProvider>(
+        builder: (context,state,child) {
+          return AlertDialog(
+            title: const Center(
+              child: Text(
+                "Add Expense",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 72, 168, 8),
+                ),
               ),
             ),
-            TextField(
-              controller: priceController,
-              decoration: const InputDecoration(labelText: "Price"),
-              keyboardType: TextInputType.number,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: state.itemController,
+                  decoration: const InputDecoration(
+                    labelText: "Item Name",
+                  ),
+                ),
+                TextField(
+                  controller: state.priceController,
+                  decoration: const InputDecoration(labelText: "Price"),
+                  keyboardType: TextInputType.number,
+                ),
+                DropdownButton<String>(
+                  value: selectedType,
+                  items: ["Dr", "Cr"]
+                      .map(
+                        (type) => DropdownMenuItem(
+                          value: type,
+                          child: Text(type),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedType = value!;
+                    });
+                  },
+                ),
+              ],
             ),
-            DropdownButton<String>(
-              value: selectedType,
-              items: ["Dr", "Cr"]
-                  .map(
-                    (type) => DropdownMenuItem(
-                      value: type,
-                      child: Text(type),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedType = value!;
-                });
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (itemController.text.isNotEmpty &&
-                  priceController.text.isNotEmpty) {
-                final item = itemController.text;
-                final price = double.parse(priceController.text);
-                Provider.of<StateProvider>(context, listen: false)
-                    .addExpense(item, price, selectedType);
-                Navigator.pop(context);
-              }
-            },
-            child: const Text("Save"),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (state.itemController.text.isNotEmpty &&
+                     state. priceController.text.isNotEmpty) {
+                    final item = state.itemController.text;
+                    final price = double.parse(state.priceController.text);
+                    Provider.of<StateProvider>(context, listen: false)
+                        .addExpense(item, price, selectedType);
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text("Save"),
+              ),
+            ],
+          );
+        }
       ),
     );
   }

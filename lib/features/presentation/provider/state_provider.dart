@@ -23,6 +23,8 @@ class StateProvider with ChangeNotifier {
   bool isLoading = false;
   String? _message;
 
+
+//has more data
   bool hasMore = true;
 
 //Model getting
@@ -62,7 +64,7 @@ class StateProvider with ChangeNotifier {
 Future<void> fetchExpenses() async {
     if (isLoading) return;
 
-    isLoading = true; // You can now modify it
+    isLoading = true; 
     notifyListeners();
 
     try {

@@ -39,7 +39,7 @@ class IMainImpl implements IExpenseFacade {
       Query query = firestore.collection(FirebaseCollections.expenses).limit(10);
 
       if (lastDocument != null) {
-        query = query.startAfterDocument(lastDocument); // Start after the last document
+        query = query.startAfterDocument(lastDocument); 
       }
 
       final querySnapshot = await query.get();

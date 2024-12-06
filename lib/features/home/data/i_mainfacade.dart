@@ -6,12 +6,17 @@ import 'package:expensetx/general/failures/failures.dart';
 abstract class IExpenseFacade {
   
   /// Uploads an expense to Firestore.
-  Future<Either<MainFailures, String>> uploadExpense({required ExpenseModel expenseModel});
+  Future<Either<MainFailures, String>> uploadExpense({required ExpenseModel expenseModel}){
+    throw UnimplementedError('uploadExpense() not implemented');
+
+  }
 
   // / Fetches all expenses from Firestore.
 
 
-  Future<Either<MainFailures, List<ExpenseModel>>> fetchExpenses(DocumentSnapshot<Object?>? lastDocument);
+  Future<Either<MainFailures, List<ExpenseModel>>> fetchExpenses(DocumentSnapshot<Object?>? lastDocument){
+    throw UnimplementedError('fetchExpense() not implemented');
+  }
 
 
 

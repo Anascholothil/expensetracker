@@ -34,7 +34,7 @@ class ExpenseModel {
     };
   }
 
-  factory ExpenseModel.fromMap(Map<String, dynamic> map) {
+  factory ExpenseModel.fromMap(Map<String, dynamic> map, String id) {
     return ExpenseModel(
       id: map['id'] as String,
       item: map['item'] as String,

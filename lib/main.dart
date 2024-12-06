@@ -20,10 +20,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-ChangeNotifierProvider(
-  create: (_) => StateProvider(expenseFacade: sl<IExpenseFacade>()),
-)
-
+        ChangeNotifierProvider(
+          create: (_) => StateProvider(expenseFacade: sl<IExpenseFacade>()),
+        )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -32,7 +31,7 @@ ChangeNotifierProvider(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home:  const HomeScreen(),
+        home: const HomeScreen(),
       ),
     );
   }

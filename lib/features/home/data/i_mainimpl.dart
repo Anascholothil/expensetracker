@@ -12,17 +12,17 @@ class IMainImpl implements IExpenseFacade {
   IMainImpl(this.firestore);
 
   @override
-  Future<Either<MainFailures, String>> uploadExpense({required ExpenseModel expenseModel}) async {
+
+  //upload Exp
+  Future<Either<MainFailures, String>> uploadExpense(
+      {required ExpenseModel expenseModel}) async {
     try {
       final expenseRef = firestore.collection(FirebaseCollections.expenses);
 
-      // Generate a unique document ID
       final id = expenseRef.doc().id;
 
-      // Create a new expense model with the generated ID
       final expense = expenseModel.copyWith(id: id);
 
-      // Save the expense to Firestore
       await expenseRef.doc(id).set(expense.toMap());
 
       return right('Expense Added');
@@ -31,37 +31,26 @@ class IMainImpl implements IExpenseFacade {
     }
   }
 
-  // // Fetch all expenses from Firestore
-  // @override
-  // Future<Either<MainFailures, List<ExpenseModel>>> fetchExpenses() async {
-  //   try {
-  //     final expenseRef = firestore.collection(FirebaseCollections.expenses);
-  //     final snapshot = await expenseRef.get();
-      
-  //     final expenses = snapshot.docs.map((doc) {
-  //       return ExpenseModel.fromMap(doc.data());
-  //     }).toList();
-
-  //     return right(expenses);
-  //   } catch (e) {
-  //     return left(MainFailures.serverFailer(errormsg: e.toString()));
-  //   }
-  // }
+//fetchExpense
 
  @override
-  Future<Either<MainFailures, List<ExpenseModel>>> fetchExpenses() async {
+  Future<Either<MainFailures, List<ExpenseModel>>> fetchExpenses(DocumentSnapshot? lastDocument) async {
     try {
-      // Fetch all documents from the expenses collection
-      final expenseSnapshot = await firestore.collection(FirebaseCollections.expenses).get();
+      Query query = firestore.collection(FirebaseCollections.expenses).limit(10);
 
-      // Convert Firestore documents to a list of ExpenseModel
-      final expenses = expenseSnapshot.docs.map((doc) {
-        return ExpenseModel.fromMap(doc.data()).copyWith(id: doc.id);
+      if (lastDocument != null) {
+        query = query.startAfterDocument(lastDocument); // Start after the last document
+      }
+
+      final querySnapshot = await query.get();
+
+      final expenses = querySnapshot.docs.map((doc) {
+        return ExpenseModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
 
-      return right(expenses); // Return the list of expenses
+      return right(expenses);
     } catch (e) {
-      return left(MainFailures.serverFailer(errormsg: e.toString())); // Handle errors
+      return left(MainFailures.serverFailer(errormsg: e.toString()));
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expensetx/features/home/data/i_mainfacade.dart';
 import 'package:expensetx/features/home/data/models/expensemodels.dart';
 import 'package:flutter/material.dart';
@@ -9,25 +10,31 @@ class StateProvider with ChangeNotifier {
       : _expenseFacade = expenseFacade;
 
 //List private
-  List<ExpenseModel> _expenses = [];
+  final List<ExpenseModel> _expenses = [];
+
+  //last document
+    DocumentSnapshot? _lastDocument;
+
 
   //total price
   final double _netTotal = 0.0;
 
   //Loader
-  bool _isLoading = false;
+  bool isLoading = false;
   String? _message;
+
+  bool hasMore = true;
 
 //Model getting
   List<ExpenseModel> get expenses => _expenses;
   double get netTotal => _netTotal;
-  bool get isLoading => _isLoading;
+  // bool get isLoading => _isLoading;
   String? get message => _message;
 
   //upload user expenses
 
   Future<void> addExpense(String item, double price, String type) async {
-    _isLoading = true;
+    isLoading = true;
     _message = null;
     notifyListeners();
 
@@ -47,30 +54,42 @@ class StateProvider with ChangeNotifier {
       },
     );
 
-    _isLoading = false;
+    isLoading = false;
     notifyListeners();
   }
 
 // Fetch all expenses
-  Future<void> fetchExpenses() async {
-    _isLoading = true;
-    _message = null;
+Future<void> fetchExpenses() async {
+    if (isLoading) return;
+
+    isLoading = true; // You can now modify it
     notifyListeners();
 
-    final result = await _expenseFacade.fetchExpenses();
-    result.fold(
-      (failure) {
-        _message = failure.errormsg;
-      },
-      (expenses) {
-        _expenses = expenses;
-      },
-    );
-
-    _isLoading = false;
-    notifyListeners();
+    try {
+      final result = await _expenseFacade.fetchExpenses(_lastDocument);
+      result.fold(
+        (failure) {
+          isLoading = false;
+          notifyListeners();
+        },
+        (newExpenses) {
+          if (newExpenses.isEmpty) {
+            hasMore = false;
+          } else {
+            _expenses.addAll(newExpenses);
+            _lastDocument = newExpenses.last.id as DocumentSnapshot<Object?>?;
+          }
+          isLoading = false;
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+    }
   }
-
+ 
+ 
   // Future<void> deleteExpense(String expenseId, int index) async {
   //   // Call the facade to delete the expense from Firestore
   //   final result = await _expenseFacade.deleteExpense(expenseId);

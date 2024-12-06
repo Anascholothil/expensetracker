@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final stateProvider = Provider.of<StateProvider>(context);
     final expenses = stateProvider.expenses;
+    final isLoading = stateProvider.isLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -36,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         centerTitle: true,
       ),
-      body: stateProvider.isLoading
+      body: isLoading && expenses.isEmpty
           ? const Center(
               child: CircularProgressIndicator(),
             )
@@ -47,77 +48,66 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 )
-              : ListView.builder(
-                  itemCount: expenses.length,
-                  itemBuilder: (context, index) {
-                    final expense = expenses[index];
-                    return Card(
-                      elevation: 4,
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      child: ListTile(
-                        onTap: () {
-                          _showDeleteConfirmationDialog(
-                              context, expense.id, index);
-                        },
-                        title: Text(
-                          expense.item,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 6, 37, 59),
-                          ),
-                        ),
-                        subtitle: Text(
-                          "₹${expense.price.toStringAsFixed(2)}",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: expense.type == 'Dr'
-                                ? Colors.redAccent
-                                : Colors.green,
-                          ),
-                        ),
-                        trailing: Text(
-                          expense.type,
-                          style: TextStyle(
-                            color: expense.type == "Dr"
-                                ? Colors.red
-                                : Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    );
+              : NotificationListener<ScrollNotification>(
+                  onNotification: (scrollNotification) {
+                    if (scrollNotification is ScrollEndNotification &&
+                        scrollNotification.metrics.pixels ==
+                            scrollNotification.metrics.maxScrollExtent) {
+                      // Trigger fetch of more expenses when scroll reaches bottom
+                      if (!isLoading && stateProvider.hasMore) {
+                        Provider.of<StateProvider>(context, listen: false)
+                            .fetchExpenses();
+                      }
+                    }
+                    return false;
                   },
+                  child: ListView.builder(
+                    itemCount: expenses.length + (isLoading ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == expenses.length) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final expense = expenses[index];
+                      return Card(
+                        elevation: 4,
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        child: ListTile(
+                          title: Text(
+                            expense.item,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 6, 37, 59),
+                            ),
+                          ),
+                          subtitle: Text(
+                            "₹${expense.price.toStringAsFixed(2)}",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: expense.type == 'Dr'
+                                  ? Colors.redAccent
+                                  : Colors.green,
+                            ),
+                          ),
+                          trailing: Text(
+                            expense.type,
+                            style: TextStyle(
+                              color: expense.type == "Dr"
+                                  ? Colors.red
+                                  : Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddExpenseDialog(context),
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmationDialog(
-      BuildContext context, String expenseId, int index) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Move To Trash"),
-        content: const Text("Are you sure you want to delete this expense?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context), // Dismiss dialog
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Provider.of<StateProvider>(context, listen: false).deleteExpense(expenseId, index); // Delete the expense
-              Navigator.pop(context); // Close the dialog
-            },
-            child: const Text("Delete"),
-          ),
-        ],
       ),
     );
   }
